@@ -1,0 +1,26 @@
+# 依賴套件
+node_modules/
+
+# 環境變數
+.env
+
+# 日誌檔案
+*.log
+npm-debug.log*
+
+# 作業系統檔案
+.DS_Store
+Thumbs.db
+
+# IDE 設定
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 本地資料
+data/
+
+# 建置輸出
+dist/
+build/
