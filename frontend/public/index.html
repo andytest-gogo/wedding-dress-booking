@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>夢幻婚紗 - 預約試穿</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hero-bg {
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), 
+                        url('https://images.unsplash.com/photo-1519741497674-611481863552?w=1200') center/cover;
+            height: 500px;
+        }
+        
+        .dress-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .dress-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 導航列 -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="text-2xl font-bold text-pink-600">💍 夢幻婚紗</div>
+                <div class="space-x-4" id="navButtons">
+                    <button onclick="showSection('home')" class="text-gray-700 hover:text-pink-600">首頁</button>
+                    <button onclick="showSection('dresses')" class="text-gray-700 hover:text-pink-600">婚紗款式</button>
+                    <button onclick="showLoginModal()" class="bg-pink-500 text-white px-4 py-2 rounded-lg hover:bg-pink-600" id="loginBtn">登入</button>
+                    <button onclick="showRegisterModal()" class="border border-pink-500 text-pink-500 px-4 py-2 rounded-lg hover:bg-pink-50" id="registerBtn">註冊</button>
+                    <button onclick="showSection('my-bookings')" class="text-gray-700 hover:text-pink-600 hidden" id="myBookingsBtn">我的預約</button>
+                    <button onclick="logout()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 hidden" id="logoutBtn">登出</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 首頁區塊 -->
+    <section id="homeSection">
+        <!-- Hero 區塊 -->
+        <div class="hero-bg flex items-center justify-center text-white">
+            <div class="text-center">
+                <h1 class="text-5xl font-bold mb-4">找到屬於你的夢幻婚紗</h1>
+                <p class="text-xl mb-8">專業團隊為你量身打造完美婚禮造型</p>
+                <button onclick="showSection('dresses')" class="bg-pink-500 px-8 py-3 rounded-lg text-lg hover:bg-pink-600 transition">
+                    立即預約試穿
+                </button>
+            </div>
+        </div>
+
+        <!-- 特色介紹 -->
+        <div class="container mx-auto px-6 py-16">
+            <h2 class="text-3xl font-bold text-center mb-12">為什麼選擇我們</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center p-6">
+                    <div class="text-5xl mb-4">👗</div>
+                    <h3 class="text-xl font-bold mb-2">精選婚紗</h3>
+                    <p class="text-gray-600">上百款精選婚紗，各種風格任你挑選</p>
+                </div>
+                <div class="text-center p-6">
+                    <div class="text-5xl mb-4">💝</div>
+                    <h3 class="text-xl font-bold mb-2">專業服務</h3>
+                    <p class="text-gray-600">一對一專業顧問，貼心服務每位新娘</p>
+                </div>
+                <div class="text-center p-6">
+                    <div class="text-5xl mb-4">⭐</div>
+                    <h3 class="text-xl font-bold mb-2">品質保證</h3>
+                    <p class="text-gray-600">高品質婚紗，讓你成為最美的新娘</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 婚紗款式區塊 -->
+    <section id="dressesSection" class="hidden">
+        <div class="container mx-auto px-6 py-16">
+            <h2 class="text-3xl font-bold text-center mb-12">婚紗款式</h2>
+            <div id="dressesList" class="grid md:grid-cols-3 gap-8">
+                <!-- 婚紗卡片將由 JavaScript 動態生成 -->
+            </div>
+        </div>
+    </section>
+
+    <!-- 我的預約區塊 -->
+    <section id="myBookingsSection" class="hidden">
+        <div class="container mx-auto px-6 py-16">
+            <h2 class="text-3xl font-bold text-center mb-12">我的預約記錄</h2>
+            <div id="bookingsList" class="max-w-4xl mx-auto">
+                <!-- 預約記錄將由 JavaScript 動態生成 -->
+            </div>
+        </div>
+    </section>
+
+    <!-- 登入 Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-2xl font-bold mb-6">會員登入</h2>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Email</label>
+                    <input type="email" id="loginEmail" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 mb-2">密碼</label>
+                    <input type="password" id="loginPassword" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                </div>
+                <div class="flex justify-between">
+                    <button type="button" onclick="closeModal('loginModal')" class="px-6 py-2 border rounded-lg hover:bg-gray-50">
+                        取消
+                    </button>
+                    <button type="submit" class="px-6 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600">
+                        登入
+                    </button>
+                </div>
+            </form>
+            <p class="mt-4 text-center text-gray-600">
+                還沒有帳號？<button onclick="closeModal('loginModal'); showRegisterModal();" class="text-pink-500 hover:underline">立即註冊</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- 註冊 Modal -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-2xl font-bold mb-6">會員註冊</h2>
+            <form id="registerForm" onsubmit="handleRegister(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">姓名 *</label>
+                    <input type="text" id="registerUsername" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Email *</label>
+                    <input type="email" id="registerEmail" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">密碼 *</label>
+                    <input type="password" id="registerPassword" required minlength="6" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 mb-2">手機號碼</label>
+                    <input type="tel" id="registerPhone" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                </div>
+                <div class="flex justify-between">
+                    <button type="button" onclick="closeModal('registerModal')" class="px-6 py-2 border rounded-lg hover:bg-gray-50">
+                        取消
+                    </button>
+                    <button type="submit" class="px-6 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600">
+                        註冊
+                    </button>
+                </div>
+            </form>
+            <p class="mt-4 text-center text-gray-600">
+                已有帳號？<button onclick="closeModal('registerModal'); showLoginModal();" class="text-pink-500 hover:underline">立即登入</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- 預約 Modal -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-2xl font-bold mb-6">預約試穿</h2>
+            <div id="bookingDressInfo" class="mb-6"></div>
+            <form id="bookingForm" onsubmit="handleBooking(event)">
+                <input type="hidden" id="bookingDressId">
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">預約日期 *</label>
+                    <input type="date" id="bookingDate" required min="" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">預約時間 *</label>
+                    <select id="bookingTime" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                        <option value="">請選擇時間</option>
+                        <option value="10:00">10:00</option>
+                        <option value="11:00">11:00</option>
+                        <option value="13:00">13:00</option>
+                        <option value="14:00">14:00</option>
+                        <option value="15:00">15:00</option>
+                        <option value="16:00">16:00</option>
+                        <option value="17:00">17:00</option>
+                    </select>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 mb-2">備註</label>
+                    <textarea id="bookingNotes" rows="3" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"></textarea>
+                </div>
+                <div class="flex justify-between">
+                    <button type="button" onclick="closeModal('bookingModal')" class="px-6 py-2 border rounded-lg hover:bg-gray-50">
+                        取消
+                    </button>
+                    <button type="submit" class="px-6 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600">
+                        確認預約
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-16">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2026 夢幻婚紗. All rights reserved.</p>
+            <p class="mt-2">📞 聯絡電話: 02-1234-5678 | 📧 Email: info@dreamwedding.com</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
