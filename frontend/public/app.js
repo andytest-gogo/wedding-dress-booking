@@ -1,5 +1,5 @@
 // API 基礎 URL
-const API_URL = 'http://localhost:3001/api';
+const API_URL = 'https://wedding-dress-booking-abcd.onrender.com/api;
 
 // 全域變數
 let currentUser = null;
